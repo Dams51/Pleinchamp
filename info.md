@@ -1,0 +1,1 @@
+# Pleinchamp for Home Assistant

@@ -1,0 +1,12 @@
+{
+  "domain": "pleinchamp",
+  "name": "Pleinchamp",
+  "codeowners": ["@Dams51"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Dams51/Pleinchamp",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Dams51/Pleinchamp/issues",
+  "requirements": [],
+  "version": "0.0.0"
+}
