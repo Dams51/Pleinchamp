@@ -1,19 +1,18 @@
-"""Constants in AstroWeather component."""
+"""Constants in Pleinchamp component."""
 
 from homeassistant.const import Platform
 
 # #####################################################
 # Domain and platforms
 # #####################################################
-DOMAIN = "astroweather"
+DOMAIN = "pleinchamp"
 
-ASTROWEATHER_PLATFORMS = (
+PLEINCHAMP_PLATFORMS = (
     Platform.BINARY_SENSOR,
     Platform.SENSOR,
     Platform.WEATHER,
 )
 DEVICE_TYPE_WEATHER = "weather"
-UPTONIGHT = "uptonight"
 
 # #####################################################
 # Configuration settings
@@ -23,7 +22,6 @@ CONF_FORECAST_INTERVAL = "forecast_interval"
 CONF_LOCATION_NAME = "location_name"
 CONF_LATITUDE = "latitude"
 CONF_LONGITUDE = "longitude"
-CONF_ELEVATION = "elevation"
 CONF_TIMEZONE_INFO = "timezone_info"
 CONF_CONDITION_CLOUDCOVER_WEIGHT = "cloudcover_weight"
 CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING = "cloudcover_high_weakening"
@@ -33,19 +31,17 @@ CONF_CONDITION_FOG_WEIGHT = "fog_weight"
 CONF_CONDITION_SEEING_WEIGHT = "seeing_weight"
 CONF_CONDITION_TRANSPARENCY_WEIGHT = "transparency_weight"
 CONF_CONDITION_CALM_WEIGHT = "calm_weight"
-CONF_UPTONIGHT_PATH = "uptonight_path"
 CONF_EXPERIMENTAL_FEATURES = "experimental_features"
 
 # #####################################################
 # Default values
 # #####################################################
-DEFAULT_ATTRIBUTION = "Powered by 7Timer and Met.no"
-EXPERIMENTAL_ATTRIBUTION = "Powered by Met.no"
+DEFAULT_ATTRIBUTION = "Powered by Pleinchamp"
+EXPERIMENTAL_ATTRIBUTION = "Powered by Pleinchamp"
 DEFAULT_FORECAST_INTERVAL = 5
 FORECAST_INTERVAL_MIN = 1
 FORECAST_INTERVAL_MAX = 240
 DEFAULT_LOCATION_NAME = "Backyard"
-DEFAULT_ELEVATION = 0
 DEFAULT_TIMEZONE_INFO = "Etc/UTC"
 DEFAULT_CONDITION_CLOUDCOVER_WEIGHT = 3
 DEFAULT_CONDITION_CLOUDCOVER_HIGH_WEAKENING = 100
@@ -55,9 +51,8 @@ DEFAULT_CONDITION_FOG_WEIGHT = 3
 DEFAULT_CONDITION_SEEING_WEIGHT = 2
 DEFAULT_CONDITION_TRANSPARENCY_WEIGHT = 1
 DEFAULT_CONDITION_CALM_WEIGHT = 2
-DEFAULT_UPTONIGHT_PATH = "/config/www"
 DEFAULT_EXPERIMENTAL_FEATURES = False
-FORECAST_TYPE_HOURLY = "hourly"
+DEFAULT_FORECAST_TYPE = "daily"
 
 # #####################################################
 # Attribute values
