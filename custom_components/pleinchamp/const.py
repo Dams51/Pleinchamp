@@ -54,6 +54,10 @@ DEFAULT_CONDITION_CALM_WEIGHT = 2
 DEFAULT_EXPERIMENTAL_FEATURES = False
 DEFAULT_FORECAST_TYPE = "daily"
 
+DEFAULT_CACHE_TIMEOUT = 1770
+DEFAULT_TIMEOUT = 10
+BASE_URL_PLEINCHAMP = "https://api.prod.pleinchamp.com/"
+
 # #####################################################
 # Attribute values
 # #####################################################

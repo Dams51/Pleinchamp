@@ -1,12 +1,14 @@
 """Pleinchamp Integration for Home Assistant."""
 
 import asyncio
-from datetime import timedelta
-from typing import TypedDict, List
+import json, JSONDecodeError
+from datetime import UTC, datetime, timedelta, timezone
+from typing import TypedDict, Dict, List
 import logging
 import ForecastData, ForecastDataModel
 
-# from pyastroweatherio import AstroWeather
+from aiohttp import ClientSession, ClientTimeout
+from aiohttp.client_exceptions import ClientError
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -46,6 +48,9 @@ from .const import (
     DEFAULT_LOCATION_NAME,
     DEFAULT_TIMEZONE_INFO,
     DEFAULT_FORECAST_TYPE,
+    DEFAULT_CACHE_TIMEOUT,
+    DEFAULT_TIMEOUT,
+    BASE_URL_PLEINCHAMP,
     DOMAIN,
 )
 
@@ -262,8 +267,7 @@ async def _get_forecast_data(self, forecast_type, hours_to_show) -> List[Forecas
     cnv = ConversionFunctions()
     items = []
 
-    await self._retrieve_data_metno()
-    await self._retrieve_data_seventimer()
+    await _retrieve_data_pleinchamp()
     now = datetime.now(UTC).replace(tzinfo=None)
 
     # Create items
@@ -401,6 +405,76 @@ async def _get_forecast_data(self, forecast_type, hours_to_show) -> List[Forecas
     _LOGGER.debug("Forceast Length: %s", str(len(items)))
 
     return items
+
+_NOT_AVAILABLE = -9999
+
+async def _retrieve_data_pleinchamp(self) -> None:
+    """Retrieves current data from Pleinchamp."""
+
+    if ((datetime.now() - self._weather_data_pleinchamp_timestamp).total_seconds()) > DEFAULT_CACHE_TIMEOUT:
+        self._weather_data_pleinchamp_timestamp = datetime.now()
+        _LOGGER.debug("Updating data from Pleinchamp")
+
+        json_data_pleinchamp = await _async_request_pleinchamp()
+
+        if json_data_pleinchamp != {}:
+            self._weather_data_pleinchamp = json_data_pleinchamp
+            self._weather_data_pleinchamp_init = json_data_pleinchamp.get("init")
+        else:
+            # Fake weather data if service is broken
+            self._weather_data_pleinchamp = []
+            for index in range(0, 20):
+                self._weather_data_pleinchamp.append(
+                    {
+                        "timepoint": index * 3,
+                        "seeing": _NOT_AVAILABLE,
+                        "transparency": _NOT_AVAILABLE,
+                        "lifted_index": _NOT_AVAILABLE,
+                    }
+                )
+            self._weather_data_pleinchamp_init = datetime.now(UTC).replace(tzinfo=None).strftime("%Y%m%d%H")
+    else:
+        _LOGGER.debug("Using cached data for Pleinchamp")
+
+async def _async_request_pleinchamp(self) -> Dict:
+    """Make a request against the Pleinchamp API."""
+
+    use_running_session = self._session and not self._session.closed
+
+    if use_running_session:
+        session = self._session
+    else:
+        session = ClientSession(timeout=ClientTimeout(total=DEFAULT_TIMEOUT))
+
+    # BASE_URL_PLEINCHAMP = "https://api.prod.pleinchamp.com/forecasts-15d?latitude=XXXXXXXXXXXXX&longitude=YYYYYYYYYYYYY
+    url = (
+        str(f"{BASE_URL_PLEINCHAMP}")
+        + "forecasts-15d?latitude="
+        + str("%.1f" % round(self._location_data.latitude, 2))
+        + "&longitude="
+        + str("%.1f" % round(self._location_data.longitude, 2))
+    )
+    try:
+        _LOGGER.debug(f"Query url: {url}")
+        async with session.request("GET", url, ssl=False) as resp:
+            resp.raise_for_status()
+            plain = str(await resp.text()).replace("\n", " ")
+            data = json.loads(plain)
+
+            return data
+    except JSONDecodeError as jsonerr:
+        _LOGGER.error(f"JSON decode error, expecting value: {jsonerr}")
+        return {}
+    except asyncio.TimeoutError as tex:
+        _LOGGER.error(f"Request to endpoint timed out: {tex}")
+        return {}
+    except ClientError as err:
+        _LOGGER.error(f"Error requesting data: {err}")
+        return {}
+
+    finally:
+        if not use_running_session:
+            await session.close()
 
 class ForecastDataModel(TypedDict):
     """Model for forecast data"""
