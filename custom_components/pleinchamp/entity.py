@@ -1,4 +1,4 @@
-"""Base Entity definition for AstroWeather Integration."""
+"""Base Entity definition for Pleinchamp Integration."""
 
 from homeassistant.const import ATTR_ATTRIBUTION
 from homeassistant.helpers.entity import Entity
@@ -11,11 +11,11 @@ from .const import (
 )
 
 
-class AstroWeatherEntity(Entity):
-    """Base class for AstroWeather Entities."""
+class PleinchampEntity(Entity):
+    """Base class for Pleinchamp Entities."""
 
     def __init__(self, coordinator, entries, entity, fcst_coordinator, entry_id):
-        """Initialize the AstroWeather Entity."""
+        """Initialize the Pleinchamp Entity."""
 
         super().__init__()
 

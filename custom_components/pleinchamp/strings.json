@@ -12,7 +12,7 @@
         }
       },
       "calculation": {
-        "description": "Configuration of the condition calculation, forecast update interval, path to your /config/www, and switch to enable AstroWeathers experimental features.",
+        "description": "Configuration of the condition calculation, forecast update interval, path to your /config/www, and switch to enable Pleinchamps experimental features.",
         "data": {
           "cloudcover_weight": "Cloud coverage weight",
           "fog_weight": "Fog density weight",
@@ -47,7 +47,7 @@
         }
       },
       "calculation": {
-        "description": "Configuration of the condition calculation, forecast update interval, path to your /config/www, and switch to enable AstroWeathers experimental features.",
+        "description": "Configuration of the condition calculation, forecast update interval, path to your /config/www, and switch to enable Pleinchamps experimental features.",
         "data": {
           "cloudcover_weight": "Cloud coverage weight",
           "fog_weight": "Fog density weight",

@@ -1,4 +1,4 @@
-"""Config Flow to configure AstroWeather Integration."""
+"""Config Flow to configure Pleinchamp Integration."""
 
 import logging
 
@@ -315,8 +315,8 @@ def _update_cloudweakening_input(data: ConfigType, cloudweakening_input: ConfigT
         )
 
 
-class AstroWeatherConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a AstroWeather config flow."""
+class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle a Pleinchamp config flow."""
 
     # As of 0.50.0 it's version 2
     VERSION = 2
@@ -392,10 +392,10 @@ class AstroWeatherConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(config_entry):
         """Get the options flow for this handler."""
 
-        return AstroWeatherOptionsFlowHandler(config_entry)
+        return PleinchampOptionsFlowHandler(config_entry)
 
 
-class AstroWeatherOptionsFlowHandler(OptionsFlow):
+class PleinchampOptionsFlowHandler(OptionsFlow):
     """Handle options."""
 
     def __init__(self, entry: ConfigEntry) -> None:

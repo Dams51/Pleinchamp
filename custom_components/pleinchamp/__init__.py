@@ -164,7 +164,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     _LOGGER.debug("Experimental features %s", str(entry.options.get(CONF_EXPERIMENTAL_FEATURES)))
 
-    astroweather = AstroWeather(
+    pleinchamp = Pleinchamp(
         session,
         latitude=entry.options.get(CONF_LATITUDE),
         longitude=entry.options.get(CONF_LONGITUDE),
@@ -181,13 +181,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
     _LOGGER.debug("Connected to Pleinchamp platform")
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = astroweather
+    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = pleinchamp
 
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name=DOMAIN,
-        update_method=astroweather.get_location_data,
+        update_method=pleinchamp.get_location_data,
         update_interval=timedelta(minutes=entry.options.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)),
     )
     await coordinator.async_config_entry_first_refresh()
@@ -218,7 +218,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "coordinator": coordinator,
         "fcst_coordinator": fcst_coordinator,
-        "aw": astroweather,
+        "aw": pleinchamp,
         "fcst_type": fcst_type,
     }
 
@@ -257,7 +257,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 async def get_forecast_data(self, fcst_type) -> List[ForecastData]:
     """Returns Weather Forecast."""
 
-    return await self._get_forecast_data(fcst_type, 5)
+    return await _get_forecast_data(fcst_type, 5)
 
 async def _get_forecast_data(self, forecast_type, hours_to_show) -> List[ForecastData]:
     """Return Forecast data for the Station."""
@@ -274,24 +274,16 @@ async def _get_forecast_data(self, forecast_type, hours_to_show) -> List[Forecas
     cnt = 0
 
     forecast_time = now.replace(minute=0, second=0, microsecond=0).replace(microsecond=0, tzinfo=timezone.utc)
-    if self._test_datetime is not None:
-        forecast_time = self._test_datetime.replace(minute=0, second=0, microsecond=0).replace(
-            microsecond=0, tzinfo=timezone.utc
-        )
     _LOGGER.debug("Forecast time: %s", str(forecast_time))
 
     # 7Timer: Search for start index
-    seventimer_init = await cnv.anchor_timestamp(self._weather_data_seventimer_init)
+    seventimer_init = await cnv.anchor_timestamp(self._weather_data_pleinchamp_init)
 
     # Anchor timestamp
-    init_ts = await cnv.anchor_timestamp(self._weather_data_seventimer_init)
+    init_ts = await cnv.anchor_timestamp(self._weather_data_pleinchamp_init)
 
     utc_to_local_diff = self._astro_routines.utc_to_local_diff()
     _LOGGER.debug("UTC to local diff: %s", str(utc_to_local_diff))
-
-    if len(self._weather_data_metno) == 0:
-        _LOGGER.error("Met.no data not available")
-        return []
 
     last_forecast_time = forecast_time
     for metno_index, datapoint in enumerate(self._weather_data_metno):

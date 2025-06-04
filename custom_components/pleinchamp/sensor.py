@@ -1,4 +1,4 @@
-"""Support for the AstroWeather sensors."""
+"""Support for the Pleinchamp sensors."""
 
 import logging
 
@@ -17,7 +17,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
 from .const import CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME, DOMAIN, UPTONIGHT
-from .entity import AstroWeatherEntity
+from .entity import PleinchampEntity
 
 SENSOR_NAME = 0
 SENSOR_UNIT = 1
@@ -448,9 +448,9 @@ SENSOR_TYPES = {
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
-    """Set up the AstroWeather sensor platform."""
+    """Set up the Pleinchamp sensor platform."""
 
-    _LOGGER.info("Set up AstroWeather sensor platform")
+    _LOGGER.info("Set up Pleinchamp sensor platform")
 
     fcst_coordinator = hass.data[DOMAIN][entry.entry_id]["fcst_coordinator"]
     if not fcst_coordinator.data:
@@ -460,21 +460,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if not coordinator.data:
         return False
 
-    astroweather = hass.data[DOMAIN][entry.entry_id]["aw"]
-    if not astroweather:
+    pleinchamp = hass.data[DOMAIN][entry.entry_id]["aw"]
+    if not pleinchamp:
         return False
 
     sensors = []
     for sensor in SENSOR_TYPES:
-        sensors.append(AstroWeatherSensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
+        sensors.append(PleinchampSensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
 
     async_add_entities(sensors, True)
 
     return True
 
 
-class AstroWeatherSensor(AstroWeatherEntity, SensorEntity):
-    """Implementation of a AstroWeather Weatherflow Sensor."""
+class PleinchampSensor(PleinchampEntity, SensorEntity):
+    """Implementation of a Pleinchamp Weatherflow Sensor."""
 
     def __init__(self, coordinator, entries, sensor, fcst_coordinator, entry):
         """Initialize the sensor."""

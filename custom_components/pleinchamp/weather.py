@@ -1,4 +1,4 @@
-"""Support for the AstroWeather weather service."""
+"""Support for the Pleinchamp weather service."""
 
 from datetime import datetime
 import logging
@@ -87,14 +87,14 @@ from .const import (
     DEVICE_TYPE_WEATHER,
     DOMAIN,
 )
-from .entity import AstroWeatherEntity
+from .entity import PleinchampEntity
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
-    """Set up the AstroWeather weather platform."""
-    _LOGGER.info("Set up AstroWeather weather platform")
+    """Set up the Pleinchamp weather platform."""
+    _LOGGER.info("Set up Pleinchamp weather platform")
 
     unit_system = "metric" if hass.config.units is METRIC_SYSTEM else "imperial"
 
@@ -110,7 +110,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if not fcst_type:
         return False
 
-    weather_entity = AstroWeatherWeather(
+    weather_entity = PleinchampWeather(
         coordinator,
         entry.data,
         DEVICE_TYPE_WEATHER,
@@ -124,7 +124,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     return True
 
 
-class AstroWeatherWeather(AstroWeatherEntity, WeatherEntity):
+class PleinchampWeather(PleinchampEntity, WeatherEntity):
     """Representation of a weather entity."""
 
     _attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
@@ -139,7 +139,7 @@ class AstroWeatherWeather(AstroWeatherEntity, WeatherEntity):
         fcst_type,
         entry,
     ) -> None:
-        """Initialize the AstroWeather weather entity."""
+        """Initialize the Pleinchamp weather entity."""
         super().__init__(coordinator, entries, device_type, fcst_coordinator, entry.entry_id)
         self._weather = None
         self._unit_system = unit_system

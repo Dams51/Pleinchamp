@@ -1,4 +1,4 @@
-"""Support for the AstroWeather binary sensors."""
+"""Support for the Pleinchamp binary sensors."""
 
 import logging
 
@@ -7,7 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
 from .const import CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME, DOMAIN
-from .entity import AstroWeatherEntity
+from .entity import PleinchampEntity
 
 SENSOR_NAME = 0
 SENSOR_UNIT = 1
@@ -47,8 +47,8 @@ SENSOR_TYPES = {
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
-    """Set up the AstroWeather binary sensor platform."""
-    _LOGGER.info("Set up AstroWeather binary sensor platform")
+    """Set up the Pleinchamp binary sensor platform."""
+    _LOGGER.info("Set up Pleinchamp binary sensor platform")
 
     fcst_coordinator = hass.data[DOMAIN][entry.entry_id]["fcst_coordinator"]
     if not fcst_coordinator.data:
@@ -58,20 +58,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     if not coordinator.data:
         return False
 
-    astroweather = hass.data[DOMAIN][entry.entry_id]["aw"]
-    if not astroweather:
+    pleinchamp = hass.data[DOMAIN][entry.entry_id]["aw"]
+    if not pleinchamp:
         return False
 
     sensors = []
     for sensor in SENSOR_TYPES:
-        sensors.append(AstroWeatherBinarySensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
+        sensors.append(PleinchampBinarySensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
 
     async_add_entities(sensors, True)
     return True
 
 
-class AstroWeatherBinarySensor(AstroWeatherEntity, BinarySensorEntity):
-    """Implementation of a AstroWeather Weatherflow Binary Sensor."""
+class PleinchampBinarySensor(PleinchampEntity, BinarySensorEntity):
+    """Implementation of a Pleinchamp Weatherflow Binary Sensor."""
 
     def __init__(self, coordinator, entries, sensor, fcst_coordinator, entry) -> None:
         """Initialize the sensor."""
