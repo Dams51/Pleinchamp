@@ -1,7 +1,7 @@
 """Pleinchamp Integration for Home Assistant."""
 
 import asyncio
-import json, JSONDecodeError
+import json
 from datetime import UTC, datetime, timedelta, timezone
 from typing import TypedDict, Dict, List
 import logging
@@ -454,7 +454,7 @@ async def _async_request_pleinchamp(self) -> Dict:
             data = json.loads(plain)
 
             return data
-    except JSONDecodeError as jsonerr:
+    except json.JSONDecodeError as jsonerr:
         _LOGGER.error(f"JSON decode error, expecting value: {jsonerr}")
         return {}
     except asyncio.TimeoutError as tex:

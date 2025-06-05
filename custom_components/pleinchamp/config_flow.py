@@ -318,8 +318,8 @@ def _update_cloudweakening_input(data: ConfigType, cloudweakening_input: ConfigT
 class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a Pleinchamp config flow."""
 
-    # As of 0.50.0 it's version 2
-    VERSION = 2
+    VERSION = 1
+    MINOR_VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
     def __init__(self) -> None:
