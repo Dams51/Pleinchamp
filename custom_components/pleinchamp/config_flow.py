@@ -13,36 +13,14 @@ from homeassistant.data_entry_flow import AbortFlow
 from homeassistant.helpers.typing import ConfigType
 
 from .const import (
-    CONF_CONDITION_CALM_WEIGHT,
-    CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-    CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-    CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-    CONF_CONDITION_CLOUDCOVER_WEIGHT,
-    CONF_CONDITION_FOG_WEIGHT,
-    CONF_CONDITION_SEEING_WEIGHT,
-    CONF_CONDITION_TRANSPARENCY_WEIGHT,
-    CONF_EXPERIMENTAL_FEATURES,
-    CONF_FORECAST_INTERVAL,
     CONF_LOCATION_NAME,
-    CONF_TIMEZONE_INFO,
-    CONF_UPTONIGHT_PATH,
-    DEFAULT_CONDITION_CALM_WEIGHT,
-    DEFAULT_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-    DEFAULT_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-    DEFAULT_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-    DEFAULT_CONDITION_CLOUDCOVER_WEIGHT,
-    DEFAULT_CONDITION_FOG_WEIGHT,
-    DEFAULT_CONDITION_SEEING_WEIGHT,
-    DEFAULT_CONDITION_TRANSPARENCY_WEIGHT,
-    DEFAULT_ELEVATION,
-    DEFAULT_EXPERIMENTAL_FEATURES,
+    CONF_FORECAST_INTERVAL,
     DEFAULT_FORECAST_INTERVAL,
-    DEFAULT_LOCATION_NAME,
-    DEFAULT_UPTONIGHT_PATH,
-    DOMAIN,
     FORECAST_INTERVAL_MAX,
     FORECAST_INTERVAL_MIN,
+    CONF_TIMEZONE_INFO,
     TIMEZONES,
+    DOMAIN,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,37 +30,17 @@ def _get_current_values(hass: HomeAssistant, data: ConfigType):
     """Return current values."""
 
     if CONF_LOCATION_NAME not in data:
-        data[CONF_LOCATION_NAME] = DEFAULT_LOCATION_NAME
+        data[CONF_LOCATION_NAME] = hass.config.location_name
     if CONF_LATITUDE not in data:
         data[CONF_LATITUDE] = hass.config.latitude
     if CONF_LONGITUDE not in data:
         data[CONF_LONGITUDE] = hass.config.longitude
     if CONF_ELEVATION not in data:
-        data[CONF_ELEVATION] = DEFAULT_ELEVATION
+        data[CONF_ELEVATION] = hass.config.elevation
     if CONF_TIMEZONE_INFO not in data:
         data[CONF_TIMEZONE_INFO] = hass.config.time_zone
-    if CONF_CONDITION_CLOUDCOVER_WEIGHT not in data:
-        data[CONF_CONDITION_CLOUDCOVER_WEIGHT] = DEFAULT_CONDITION_CLOUDCOVER_WEIGHT
-    if CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING not in data:
-        data[CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING] = DEFAULT_CONDITION_CLOUDCOVER_HIGH_WEAKENING
-    if CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING not in data:
-        data[CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING] = DEFAULT_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING
-    if CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING not in data:
-        data[CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING] = DEFAULT_CONDITION_CLOUDCOVER_LOW_WEAKENING
-    if CONF_CONDITION_FOG_WEIGHT not in data:
-        data[CONF_CONDITION_FOG_WEIGHT] = DEFAULT_CONDITION_FOG_WEIGHT
-    if CONF_CONDITION_SEEING_WEIGHT not in data:
-        data[CONF_CONDITION_SEEING_WEIGHT] = DEFAULT_CONDITION_SEEING_WEIGHT
-    if CONF_CONDITION_TRANSPARENCY_WEIGHT not in data:
-        data[CONF_CONDITION_TRANSPARENCY_WEIGHT] = DEFAULT_CONDITION_TRANSPARENCY_WEIGHT
-    if CONF_CONDITION_CALM_WEIGHT not in data:
-        data[CONF_CONDITION_CALM_WEIGHT] = DEFAULT_CONDITION_CALM_WEIGHT
     if CONF_FORECAST_INTERVAL not in data:
         data[CONF_FORECAST_INTERVAL] = DEFAULT_FORECAST_INTERVAL
-    if CONF_UPTONIGHT_PATH not in data:
-        data[CONF_UPTONIGHT_PATH] = DEFAULT_UPTONIGHT_PATH
-    if CONF_EXPERIMENTAL_FEATURES not in data:
-        data[CONF_EXPERIMENTAL_FEATURES] = DEFAULT_EXPERIMENTAL_FEATURES
 
     return data
 
@@ -112,35 +70,10 @@ def _get_config_data(hass: HomeAssistant, data: ConfigType, user_input: ConfigTy
             CONF_TIMEZONE_INFO,
             data[CONF_TIMEZONE_INFO],
         ),
-        CONF_CONDITION_CLOUDCOVER_WEIGHT: user_input.get(
-            CONF_CONDITION_CLOUDCOVER_WEIGHT,
-            data[CONF_CONDITION_CLOUDCOVER_WEIGHT],
+        CONF_FORECAST_INTERVAL: data.get(
+            CONF_FORECAST_INTERVAL, 
+            data[CONF_FORECAST_INTERVAL]
         ),
-        CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING: user_input.get(
-            CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-            data[CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING],
-        ),
-        CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING: user_input.get(
-            CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-            data[CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING],
-        ),
-        CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING: user_input.get(
-            CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-            data[CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING],
-        ),
-        CONF_CONDITION_FOG_WEIGHT: user_input.get(
-            CONF_CONDITION_FOG_WEIGHT,
-            data[CONF_CONDITION_FOG_WEIGHT],
-        ),
-        CONF_CONDITION_SEEING_WEIGHT: user_input.get(CONF_CONDITION_SEEING_WEIGHT, data[CONF_CONDITION_SEEING_WEIGHT]),
-        CONF_CONDITION_TRANSPARENCY_WEIGHT: user_input.get(
-            CONF_CONDITION_TRANSPARENCY_WEIGHT,
-            data[CONF_CONDITION_TRANSPARENCY_WEIGHT],
-        ),
-        CONF_CONDITION_CALM_WEIGHT: user_input.get(CONF_CONDITION_CALM_WEIGHT, data[CONF_CONDITION_CALM_WEIGHT]),
-        CONF_FORECAST_INTERVAL: data.get(CONF_FORECAST_INTERVAL, data[CONF_FORECAST_INTERVAL]),
-        CONF_UPTONIGHT_PATH: user_input.get(CONF_UPTONIGHT_PATH, data[CONF_UPTONIGHT_PATH]),
-        CONF_EXPERIMENTAL_FEATURES: user_input.get(CONF_EXPERIMENTAL_FEATURES, data[CONF_EXPERIMENTAL_FEATURES]),
     }
 
 
@@ -149,14 +82,14 @@ def get_location_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
 
     return vol.Schema(
         {
-            vol.Required(CONF_LOCATION_NAME, default=DEFAULT_LOCATION_NAME): vol.All(vol.Coerce(str)),
+            vol.Required(CONF_LOCATION_NAME, default=hass.config.location_name): vol.All(vol.Coerce(str)),
             vol.Required(CONF_LATITUDE, default=hass.config.latitude): vol.All(
                 vol.Coerce(float), vol.Range(min=-89, max=89)
             ),
             vol.Required(CONF_LONGITUDE, default=hass.config.longitude): vol.All(
                 vol.Coerce(float), vol.Range(min=-180, max=180)
             ),
-            vol.Required(CONF_ELEVATION, default=DEFAULT_ELEVATION): vol.All(
+            vol.Required(CONF_ELEVATION, default=hass.config.elevation): vol.All(
                 vol.Coerce(int), vol.Range(min=0, max=4000)
             ),
             vol.Required(CONF_TIMEZONE_INFO, default=hass.config.time_zone): vol.All(
@@ -172,87 +105,9 @@ def get_calculation_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
     data = _get_current_values(hass, data)
     return vol.Schema(
         {
-            vol.Required(
-                CONF_CONDITION_CLOUDCOVER_WEIGHT,
-                default=data[CONF_CONDITION_CLOUDCOVER_WEIGHT],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=5),
-            ),
-            vol.Required(
-                CONF_CONDITION_FOG_WEIGHT,
-                default=data[CONF_CONDITION_FOG_WEIGHT],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=5),
-            ),
-            vol.Required(
-                CONF_CONDITION_SEEING_WEIGHT,
-                default=data[CONF_CONDITION_SEEING_WEIGHT],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=5),
-            ),
-            vol.Required(
-                CONF_CONDITION_TRANSPARENCY_WEIGHT,
-                default=data[CONF_CONDITION_TRANSPARENCY_WEIGHT],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=5),
-            ),
-            vol.Required(
-                CONF_CONDITION_CALM_WEIGHT,
-                default=data[CONF_CONDITION_CALM_WEIGHT],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=5),
-            ),
             vol.Required(CONF_FORECAST_INTERVAL, default=data[CONF_FORECAST_INTERVAL]): vol.All(
                 vol.Coerce(int),
                 vol.Range(min=FORECAST_INTERVAL_MIN, max=FORECAST_INTERVAL_MAX),
-            ),
-            vol.Optional(
-                CONF_UPTONIGHT_PATH,
-                default=data[CONF_UPTONIGHT_PATH],
-            ): vol.All(
-                vol.Coerce(str),
-            ),
-            vol.Required(
-                CONF_EXPERIMENTAL_FEATURES,
-                default=data[CONF_EXPERIMENTAL_FEATURES],
-            ): vol.All(
-                vol.Coerce(bool),
-            ),
-        }
-    )
-
-
-def get_cloudweakening_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
-    """Return the cloudweakening schema."""
-
-    data = _get_current_values(hass, data)
-    return vol.Schema(
-        {
-            vol.Required(
-                CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-                default=data[CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=100),
-            ),
-            vol.Required(
-                CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-                default=data[CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=100),
-            ),
-            vol.Required(
-                CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-                default=data[CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING],
-            ): vol.All(
-                vol.Coerce(int),
-                vol.Range(min=0, max=100),
             ),
         }
     )
@@ -262,13 +117,10 @@ def _update_location_input(hass: HomeAssistant, data: ConfigType, location_input
     """Update location data."""
 
     if location_input is not None:
-        data[CONF_LOCATION_NAME] = location_input.get(CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME)
+        data[CONF_LOCATION_NAME] = location_input.get(CONF_LOCATION_NAME, hass.config.location_name)
         data[CONF_LATITUDE] = location_input.get(CONF_LATITUDE, hass.config.latitude)
-        data[CONF_LONGITUDE] = location_input.get(
-            CONF_LONGITUDE,
-            hass.config.longitude,
-        )
-        data[CONF_ELEVATION] = location_input.get(CONF_ELEVATION, DEFAULT_ELEVATION)
+        data[CONF_LONGITUDE] = location_input.get(CONF_LONGITUDE,hass.config.longitude)
+        data[CONF_ELEVATION] = location_input.get(CONF_ELEVATION, hass.config.elevation)
         data[CONF_TIMEZONE_INFO] = location_input.get(CONF_TIMEZONE_INFO, hass.config.time_zone)
 
 
@@ -276,43 +128,7 @@ def _update_calculation_input(data: ConfigType, calculation_input: ConfigType) -
     """Update calculation data."""
 
     if calculation_input is not None:
-        data[CONF_CONDITION_CLOUDCOVER_WEIGHT] = calculation_input.get(
-            CONF_CONDITION_CLOUDCOVER_WEIGHT, DEFAULT_CONDITION_CLOUDCOVER_WEIGHT
-        )
-        data[CONF_CONDITION_FOG_WEIGHT] = calculation_input.get(CONF_CONDITION_FOG_WEIGHT, DEFAULT_CONDITION_FOG_WEIGHT)
-        data[CONF_CONDITION_SEEING_WEIGHT] = calculation_input.get(
-            CONF_CONDITION_SEEING_WEIGHT, DEFAULT_CONDITION_SEEING_WEIGHT
-        )
-        data[CONF_CONDITION_TRANSPARENCY_WEIGHT] = calculation_input.get(
-            CONF_CONDITION_TRANSPARENCY_WEIGHT,
-            DEFAULT_CONDITION_TRANSPARENCY_WEIGHT,
-        )
-        data[CONF_CONDITION_CALM_WEIGHT] = calculation_input.get(
-            CONF_CONDITION_CALM_WEIGHT, DEFAULT_CONDITION_CALM_WEIGHT
-        )
         data[CONF_FORECAST_INTERVAL] = calculation_input.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)
-        data[CONF_UPTONIGHT_PATH] = calculation_input.get(CONF_UPTONIGHT_PATH, DEFAULT_UPTONIGHT_PATH)
-        data[CONF_EXPERIMENTAL_FEATURES] = calculation_input.get(
-            CONF_EXPERIMENTAL_FEATURES, DEFAULT_EXPERIMENTAL_FEATURES
-        )
-
-
-def _update_cloudweakening_input(data: ConfigType, cloudweakening_input: ConfigType) -> None:
-    """Update cloudweakening data."""
-
-    if cloudweakening_input is not None:
-        data[CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING] = cloudweakening_input.get(
-            CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-            DEFAULT_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
-        )
-        data[CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING] = cloudweakening_input.get(
-            CONF_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-            DEFAULT_CONDITION_CLOUDCOVER_MEDIUM_WEAKENING,
-        )
-        data[CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING] = cloudweakening_input.get(
-            CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-            DEFAULT_CONDITION_CLOUDCOVER_LOW_WEAKENING,
-        )
 
 
 class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -349,27 +165,14 @@ class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_calculation(self, calculation_input: ConfigType | None = None) -> ConfigFlowResult:
         """Handle a flow initiated by the user."""
 
-        if calculation_input is not None:
-            self.data = _get_config_data(self.hass, self.data, user_input=calculation_input)
-            return await self.async_step_cloudweakening()
 
-        _update_calculation_input(data=self.data, calculation_input=calculation_input)
-
-        return self.async_show_form(
-            step_id="calculation",
-            data_schema=get_calculation_schema(self.hass, data=self.data),
-        )
-
-    async def async_step_cloudweakening(self, cloudweakening_input: ConfigType | None = None) -> ConfigFlowResult:
-        """Handle a flow initiated by the user."""
-
-        if cloudweakening_input is None:
+        if calculation_input is None:
             return self.async_show_form(
-                step_id="cloudweakening",
-                data_schema=get_cloudweakening_schema(self.hass, data=self.data),
+                step_id="calculation",
+                data_schema=get_calculation_schema(self.hass, data=self.data),
             )
 
-        _update_cloudweakening_input(data=self.data, cloudweakening_input=cloudweakening_input)
+        _update_calculation_input(data=self.data, calculation_input=calculation_input)
 
         try:
             unique_id = f"{self.data[CONF_LOCATION_NAME]!s}"
@@ -381,11 +184,6 @@ class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             return self.async_abort(reason=msg)
         else:
             return self.async_create_entry(title=self.data[CONF_LOCATION_NAME], data=self.data)
-
-        # return self.async_show_form(
-        #     step_id="location",
-        #     data_schema=get_location_schema(hass=self.hass, data=self.data),
-        # )
 
     @staticmethod
     @callback
@@ -428,27 +226,13 @@ class PleinchampOptionsFlowHandler(OptionsFlow):
     async def async_step_calculation(self, calculation_input: ConfigType | None = None) -> ConfigFlowResult:
         """Handle a flow initiated by the user."""
 
-        if calculation_input is not None:
-            self.data = _get_config_data(self.hass, self.data, user_input=calculation_input)
-            return await self.async_step_cloudweakening()
-
-        _update_calculation_input(data=self.data, calculation_input=calculation_input)
-
-        return self.async_show_form(
-            step_id="calculation",
-            data_schema=get_calculation_schema(self.hass, data=self.data),
-        )
-
-    async def async_step_cloudweakening(self, cloudweakening_input: ConfigType | None = None) -> ConfigFlowResult:
-        """Handle a flow initiated by the user."""
-
-        if cloudweakening_input is None:
+        if calculation_input is None:
             return self.async_show_form(
-                step_id="cloudweakening",
-                data_schema=get_cloudweakening_schema(self.hass, data=self.data),
+                step_id="calculation",
+                data_schema=get_calculation_schema(self.hass, data=self.data),
             )
 
-        _update_cloudweakening_input(data=self.data, cloudweakening_input=cloudweakening_input)
+        _update_calculation_input(data=self.data, calculation_input=calculation_input)
 
         self.hass.config_entries.async_update_entry(
             entry=self.entry,
@@ -457,8 +241,4 @@ class PleinchampOptionsFlowHandler(OptionsFlow):
         )
 
         return self.async_create_entry(title="", data={})
-
-        # return self.async_show_form(
-        #     step_id="location",
-        #     data_schema=get_location_schema(hass=self.hass, data=self.data),
-        # )
+    

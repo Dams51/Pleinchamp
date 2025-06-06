@@ -98,25 +98,25 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     unit_system = "metric" if hass.config.units is METRIC_SYSTEM else "imperial"
 
-    fcst_coordinator = hass.data[DOMAIN][entry.entry_id]["fcst_coordinator"]
-    if not fcst_coordinator.data:
+    forecast_coordinator = hass.data[DOMAIN][entry.entry_id]["forecast"]
+    if not forecast_coordinator.data:
         return False
 
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     if not coordinator.data:
         return False
 
-    fcst_type = hass.data[DOMAIN][entry.entry_id]["fcst_type"]
-    if not fcst_type:
+    forecast_type = hass.data[DOMAIN][entry.entry_id]["forecast_type"]
+    if not forecast_type:
         return False
 
     weather_entity = PleinchampWeather(
         coordinator,
         entry.data,
         DEVICE_TYPE_WEATHER,
-        fcst_coordinator,
+        forecast_coordinator,
         unit_system,
-        fcst_type,
+        forecast_type,
         entry,
     )
 
@@ -134,16 +134,16 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
         coordinator,
         entries,
         device_type,
-        fcst_coordinator,
+        forecast_coordinator,
         unit_system,
-        fcst_type,
+        forecast_type,
         entry,
     ) -> None:
         """Initialize the Pleinchamp weather entity."""
-        super().__init__(coordinator, entries, device_type, fcst_coordinator, entry.entry_id)
+        super().__init__(coordinator, entries, device_type, forecast_coordinator, entry.entry_id)
         self._weather = None
         self._unit_system = unit_system
-        self._forecast_type = fcst_type
+        self._forecast_type = forecast_type
 
         self._location_name = entries.get(CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME)
         self._attr_unique_id = f"{entry.entry_id}_{DOMAIN.lower()}"
@@ -560,12 +560,12 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
     def _forecast(self) -> list[Forecast] | None:
         """Return the forecast array."""
 
-        if self.fcst_coordinator.data is None or len(self.fcst_coordinator.data) < 2:
+        if self.forecast_coordinator.data is None or len(self.forecast_coordinator.data) < 2:
             return None
 
         forecasts: list[Forecast] = []
 
-        for forecast in self.fcst_coordinator.data:
+        for forecast in self.forecast_coordinator.data:
             forecasts.append(
                 {
                     ATTR_FORECAST_TIME: forecast.forecast_time.isoformat(),
@@ -604,5 +604,5 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
 
     async def async_update(self) -> None:
         """Get the latest weather data."""
-        self._weather = self.fcst_coordinator.data
+        self._weather = self.forecast_coordinator.data
         await self.async_update_listeners(("hourly",))

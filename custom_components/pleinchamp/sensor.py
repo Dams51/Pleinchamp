@@ -16,7 +16,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME, DOMAIN, UPTONIGHT
+from .const import CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME, DOMAIN
 from .entity import PleinchampEntity
 
 SENSOR_NAME = 0
@@ -437,13 +437,6 @@ SENSOR_TYPES = {
         None,
         None,
     ],
-    UPTONIGHT: [
-        "Uptonight",
-        None,
-        "mdi:creation-outline",
-        None,
-        None,
-    ],
 }
 
 
@@ -452,21 +445,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     _LOGGER.info("Set up Pleinchamp sensor platform")
 
-    fcst_coordinator = hass.data[DOMAIN][entry.entry_id]["fcst_coordinator"]
-    if not fcst_coordinator.data:
+    forecast_coordinator = hass.data[DOMAIN][entry.entry_id]["forecast"]
+    if not forecast_coordinator.data:
         return False
 
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     if not coordinator.data:
         return False
 
-    pleinchamp = hass.data[DOMAIN][entry.entry_id]["aw"]
+    pleinchamp = hass.data[DOMAIN][entry.entry_id]["client"]
     if not pleinchamp:
         return False
 
     sensors = []
     for sensor in SENSOR_TYPES:
-        sensors.append(PleinchampSensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
+        sensors.append(PleinchampSensor(coordinator, entry.data, sensor, forecast_coordinator, entry))
 
     async_add_entities(sensors, True)
 
@@ -476,9 +469,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class PleinchampSensor(PleinchampEntity, SensorEntity):
     """Implementation of a Pleinchamp Weatherflow Sensor."""
 
-    def __init__(self, coordinator, entries, sensor, fcst_coordinator, entry):
+    def __init__(self, coordinator, entries, sensor, forecast_coordinator, entry):
         """Initialize the sensor."""
-        super().__init__(coordinator, entries, sensor, fcst_coordinator, entry.entry_id)
+        super().__init__(coordinator, entries, sensor, forecast_coordinator, entry.entry_id)
         self._sensor = sensor
         self._device_class = SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS]
         self._state_class = SENSOR_TYPES[self._sensor][SENSOR_STATE_CLASS]
@@ -533,53 +526,6 @@ class PleinchampSensor(PleinchampEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self) -> {}:
-        """Extra state attributes for UpTonight."""
-
-        if self._sensor == UPTONIGHT:
-            dso_list = []
-            if self.coordinator.data[SENSOR_NAME].uptonight is not None:
-                for dso in self.coordinator.data[SENSOR_NAME].uptonight_list:
-                    obj = {
-                        "id": dso.id,
-                        "name": dso.target_name,
-                        "type": dso.type,
-                        "constellation": dso.constellation,
-                        "visual_magnitude": dso.visual_magnitude,
-                        "meridian_transit": dso.meridian_transit,
-                        "meridian_antitransit": dso.meridian_antitransit,
-                        "foto": dso.foto,
-                    }
-                    dso_list.append(obj)
-
-            bodies_list = []
-            if self.coordinator.data[SENSOR_NAME].uptonight_bodies is not None:
-                for body in self.coordinator.data[SENSOR_NAME].uptonight_bodies_list:
-                    obj = {
-                        "name": body.target_name,
-                        "max_altitude": body.max_altitude,
-                        "azimuth": body.azimuth,
-                        "max_altitude_time": body.max_altitude_time,
-                        "visual_magnitude": body.visual_magnitude,
-                        "meridian_transit": body.meridian_transit,
-                        "foto": body.foto,
-                    }
-                    bodies_list.append(obj)
-
-            comets_list = []
-            if self.coordinator.data[SENSOR_NAME].uptonight_comets is not None:
-                for comet in self.coordinator.data[SENSOR_NAME].uptonight_comets_list:
-                    obj = {
-                        "designation": comet.designation,
-                        "distance_au_earth": comet.distance_au_earth,
-                        "distance_au_sun": comet.distance_au_sun,
-                        "visual_magnitude": comet.visual_magnitude,
-                        "altitude": comet.altitude,
-                        "azimuth": comet.azimuth,
-                        "rise_time": comet.rise_time,
-                        "set_time": comet.set_time,
-                    }
-                    comets_list.append(obj)
-
-            return {"objects": dso_list, "bodies": bodies_list, "comets": comets_list}
+        """Extra state attributes."""
 
         return None

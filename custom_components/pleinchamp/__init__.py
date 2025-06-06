@@ -110,10 +110,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if not forecast_coordinator.last_update_success:
         raise ConfigEntryNotReady
 
+    forecast_type = entry.options.get(CONF_FORECAST_TYPE, DEFAULT_FORECAST_TYPE)
+    
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "coordinator": coordinator,
         "forecast": forecast_coordinator,
         "client": pleinchamp,
+        "forecast_type": forecast_type,
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLEINCHAMP_PLATFORMS)

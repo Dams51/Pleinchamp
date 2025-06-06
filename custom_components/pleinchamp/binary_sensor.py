@@ -50,21 +50,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
     """Set up the Pleinchamp binary sensor platform."""
     _LOGGER.info("Set up Pleinchamp binary sensor platform")
 
-    fcst_coordinator = hass.data[DOMAIN][entry.entry_id]["fcst_coordinator"]
-    if not fcst_coordinator.data:
+    forecast_coordinator = hass.data[DOMAIN][entry.entry_id]["forecast"]
+    if not forecast_coordinator.data:
         return False
 
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     if not coordinator.data:
         return False
 
-    pleinchamp = hass.data[DOMAIN][entry.entry_id]["aw"]
+    pleinchamp = hass.data[DOMAIN][entry.entry_id]["client"]
     if not pleinchamp:
         return False
 
     sensors = []
     for sensor in SENSOR_TYPES:
-        sensors.append(PleinchampBinarySensor(coordinator, entry.data, sensor, fcst_coordinator, entry))
+        sensors.append(PleinchampBinarySensor(coordinator, entry.data, sensor, forecast_coordinator, entry))
 
     async_add_entities(sensors, True)
     return True
@@ -73,9 +73,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class PleinchampBinarySensor(PleinchampEntity, BinarySensorEntity):
     """Implementation of a Pleinchamp Weatherflow Binary Sensor."""
 
-    def __init__(self, coordinator, entries, sensor, fcst_coordinator, entry) -> None:
+    def __init__(self, coordinator, entries, sensor, forecast_coordinator, entry) -> None:
         """Initialize the sensor."""
-        super().__init__(coordinator, entries, sensor, fcst_coordinator, entry.entry_id)
+        super().__init__(coordinator, entries, sensor, forecast_coordinator, entry.entry_id)
         self._sensor = sensor
         self._device_class = SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS]
 

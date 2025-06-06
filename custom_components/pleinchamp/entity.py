@@ -14,13 +14,13 @@ from .const import (
 class PleinchampEntity(Entity):
     """Base class for Pleinchamp Entities."""
 
-    def __init__(self, coordinator, entries, entity, fcst_coordinator, entry_id):
+    def __init__(self, coordinator, entries, entity, forecast_coordinator, entry_id):
         """Initialize the Pleinchamp Entity."""
 
         super().__init__()
 
         self.coordinator = coordinator
-        self.fcst_coordinator = fcst_coordinator
+        self.forecast_coordinator = forecast_coordinator
         self.entries = entries
         self._entity = entity
         self._entry_id = entry_id
@@ -38,9 +38,9 @@ class PleinchampEntity(Entity):
     def _forecast(self):
         """Return forecast data array."""
 
-        if self.fcst_coordinator is None:
+        if self.forecast_coordinator is None:
             return None
-        return self.fcst_coordinator.data[0]
+        return self.forecast_coordinator.data[0]
 
     @property
     def available(self):
@@ -65,4 +65,4 @@ class PleinchampEntity(Entity):
 
         self.async_on_remove(self.coordinator.async_add_listener(self.async_write_ha_state))
 
-        self.async_on_remove(self.fcst_coordinator.async_add_listener(self.async_write_ha_state))
+        self.async_on_remove(self.forecast_coordinator.async_add_listener(self.async_write_ha_state))
