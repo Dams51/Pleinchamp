@@ -38,6 +38,7 @@ class Pleinchamp:
 
                 self._last_fetch = datetime.now(UTC)
                 self._cached_data = data
+                _LOGGER.debug(f"get_location_data - Forecast datas : \n{json.dumps(data, indent=2, ensure_ascii=False)}")
                 return data
         except (asyncio.TimeoutError, ClientError, json.JSONDecodeError) as err:
             _LOGGER.error(f"Error fetching Pleinchamp data: {err}")
@@ -46,7 +47,7 @@ class Pleinchamp:
     async def get_forecast_data(self) -> list[dict]:
         """Extract forecast entries from API."""
         data = await self.get_location_data()
-        return data.get("forecast", [])
+        return data
 
     def _build_url(self) -> str:
         lat = self._options.get("latitude")

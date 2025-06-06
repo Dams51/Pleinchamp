@@ -127,7 +127,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 class PleinchampWeather(PleinchampEntity, WeatherEntity):
     """Representation of a weather entity."""
 
-    _attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
+    _attr_supported_features = WeatherEntityFeature.FORECAST_DAILY
 
     def __init__(
         self,
@@ -598,11 +598,11 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
             return forecasts
         return None
 
-    async def async_forecast_hourly(self) -> list[Forecast] | None:
-        """Return the hourly forecast in native units."""
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast in native units."""
         return self._forecast()
 
     async def async_update(self) -> None:
         """Get the latest weather data."""
         self._weather = self.forecast_coordinator.data
-        await self.async_update_listeners(("hourly",))
+        await self.async_update_listeners(("daily",))
