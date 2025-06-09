@@ -4,10 +4,8 @@ from homeassistant.const import ATTR_ATTRIBUTION
 from homeassistant.helpers.entity import Entity
 
 from .const import (
-    CONF_EXPERIMENTAL_FEATURES,
     CONF_LOCATION_NAME,
     DEFAULT_ATTRIBUTION,
-    EXPERIMENTAL_ATTRIBUTION,
 )
 
 
@@ -52,10 +50,6 @@ class PleinchampEntity(Entity):
     def extra_state_attributes(self):
         """Return common attributes."""
 
-        if self.entries.get(CONF_EXPERIMENTAL_FEATURES):
-            return {
-                ATTR_ATTRIBUTION: EXPERIMENTAL_ATTRIBUTION,
-            }
         return {
             ATTR_ATTRIBUTION: DEFAULT_ATTRIBUTION,
         }

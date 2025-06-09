@@ -1,13 +1,13 @@
 """Support for the Pleinchamp sensors."""
 
 import logging
+from datetime import date
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     DEGREE,
     PERCENTAGE,
-    UnitOfLength,
     UnitOfPrecipitationDepth,
     UnitOfSpeed,
     UnitOfTemperature,
@@ -25,419 +25,96 @@ SENSOR_ICON = 2
 SENSOR_DEVICE_CLASS = 3
 SENSOR_STATE_CLASS = 4
 
-STATE_CLASS_MEASUREMENT = "measurement"
-
 _LOGGER = logging.getLogger(__name__)
 
 # Sensor types are defined like: Name, Unit Type, icon, device class
 SENSOR_TYPES = {
     "forecast_length": [
         "Forecast Length",
-        UnitOfTime.HOURS,
-        "mdi:map-marker-distance",
+        UnitOfTime.DAYS,
+        "mdi:calendar-range",
         None,
         None,
     ],
-    "location_name": [
-        "Location Name",
-        None,
-        "mdi:map-marker-outline",
-        None,
-        None,
-    ],
-    "latitude": [
-        "Latitude",
-        DEGREE,
-        "mdi:latitude",
-        None,
-        None,
-    ],
-    "longitude": [
-        "Longitude",
-        DEGREE,
-        "mdi:longitude",
-        None,
-        None,
-    ],
-    "elevation": [
-        "Elevation",
-        UnitOfLength.METERS,
-        "mdi:image-filter-hdr",
-        None,
-        None,
-    ],
-    "time_shift": [
-        "Time Shift",
-        None,
-        "mdi:map-clock-outline",
-        None,
-        None,
-    ],
-    "forecast_time": [
-        "Timestamp",
+    "date": [
+        "Date",
         None,
         "mdi:calendar",
-        SensorDeviceClass.TIMESTAMP,
+        SensorDeviceClass.DATE,
         None,
     ],
-    "cloudcover_percentage": [
-        "Cloud Cover",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
+    "weatherCode": [
+        "Weather Code",
         None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "cloudless_percentage": [
-        "Cloudless",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "cloud_area_fraction_percentage": [
-        "Clouds Area",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "cloud_area_fraction_high_percentage": [
-        "Clouds Area High",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "cloud_area_fraction_medium_percentage": [
-        "Clouds Area Medium",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "cloud_area_fraction_low_percentage": [
-        "Clouds Area Low",
-        PERCENTAGE,
-        "mdi:weather-night-partly-cloudy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "fog_area_fraction_percentage": [
-        "Fog Area",
-        PERCENTAGE,
-        "mdi:weather-fog",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "fog2m_area_fraction_percentage": [
-        "Fog 2m Area",
-        PERCENTAGE,
-        "mdi:weather-fog",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "seeing_percentage": [
-        "Seeing Percentage",
-        PERCENTAGE,
-        "mdi:waves",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "seeing": [
-        "Seeing",
-        None,
-        "mdi:waves",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "transparency_percentage": [
-        "Transparency",
-        PERCENTAGE,
-        "mdi:safety-goggles",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "transparency_plain": [
-        "Transparency Plain",
-        None,
-        "mdi:safety-goggles",
+        "mdi:weather-partly-cloudy",
         None,
         None,
     ],
-    "lifted_index": [
-        "Lifted Index",
+    "minAirTemperatureNearGround": [
+        "Min Temp Near Ground",
         UnitOfTemperature.CELSIUS,
-        "mdi:arrow-expand-up",
+        "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
-        STATE_CLASS_MEASUREMENT,
+        SensorStateClass.MEASUREMENT,
     ],
-    "lifted_index_plain": [
-        "Lifted Index Plain",
-        None,
-        "mdi:arrow-expand-up",
-        None,
-        None,
+    "minAirTemperature": [
+        "Min Air Temp",
+        UnitOfTemperature.CELSIUS,
+        "mdi:thermometer",
+        SensorDeviceClass.TEMPERATURE,
+        SensorStateClass.MEASUREMENT,
     ],
-    "rh2m": [
-        "2m Relative Humidity",
+    "maxAirTemperature": [
+        "Max Air Temp",
+        UnitOfTemperature.CELSIUS,
+        "mdi:thermometer-high",
+        SensorDeviceClass.TEMPERATURE,
+        SensorStateClass.MEASUREMENT,
+    ],
+    "precipitationAmount": [
+        "Precipitation",
+        UnitOfPrecipitationDepth.MILLIMETERS,
+        "mdi:weather-rainy",
+        SensorDeviceClass.PRECIPITATION,
+        SensorStateClass.MEASUREMENT,
+    ],
+    "precipitationProbability": [
+        "Precipitation Probability",
+        PERCENTAGE,
+        "mdi:weather-partly-rainy",
+        SensorDeviceClass.PRECIPITATION_INTENSITY,
+        SensorStateClass.MEASUREMENT,
+    ],
+    "relativeHumidity": [
+        "Humidity",
         PERCENTAGE,
         "mdi:water-percent",
         SensorDeviceClass.HUMIDITY,
-        STATE_CLASS_MEASUREMENT,
+        SensorStateClass.MEASUREMENT,
     ],
-    "calm_percentage": [
-        "Calm Percentage",
-        PERCENTAGE,
+    "windDirection": [
+        "Wind Direction",
+        DEGREE,
+        "mdi:compass",
+        None,
+        None,
+    ],
+    "windSpeedAt2m": [
+        "Wind Speed",
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
         "mdi:weather-windy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "wind10m_direction": [
-        "10m Wind Direction",
-        None,
-        "mdi:weather-windy",
-        None,
-        None,
-    ],
-    "wind10m_speed": [
-        "10m Wind Speed",
-        UnitOfSpeed.METERS_PER_SECOND,
-        "mdi:windsock",
         SensorDeviceClass.WIND_SPEED,
-        STATE_CLASS_MEASUREMENT,
+        SensorStateClass.MEASUREMENT,
     ],
-    "temp2m": [
-        "2m Temperature",
-        UnitOfTemperature.CELSIUS,
-        "mdi:thermometer",
-        SensorDeviceClass.TEMPERATURE,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "dewpoint2m": [
-        "2m Dewpoint",
-        UnitOfTemperature.CELSIUS,
-        "mdi:thermometer",
-        SensorDeviceClass.TEMPERATURE,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "precipitation_amount": [
-        "Precipitation Amount",
-        UnitOfPrecipitationDepth.MILLIMETERS,
-        "mdi:weather-snowy-rainy",
-        SensorDeviceClass.PRECIPITATION,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "condition_percentage": [
-        "Condition",
-        PERCENTAGE,
-        "mdi:weather-snowy-rainy",
-        None,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "sun_altitude": [
-        "Sun Altitude",
-        DEGREE,
-        "mdi:weather-sunny",
-        None,
-        None,
-    ],
-    "sun_azimuth": [
-        "Sun Azimuth",
-        DEGREE,
-        "mdi:weather-sunny",
-        None,
-        None,
-    ],
-    "sun_next_setting": [
-        "Sun Next Setting",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_next_setting_nautical": [
-        "Sun Next Setting Nautical",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_next_setting_astro": [
-        "Sun Next Setting Astronomical",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_next_rising": [
-        "Sun Next Rising",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_next_rising_nautical": [
-        "Sun Next Rising Nautical",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_next_rising_astro": [
-        "Sun Next Rising Astronomical",
-        None,
-        "mdi:weather-sunset-down",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "sun_constellation": [
-        "Sun Constellation",
-        None,
-        "mdi:weather-sunny",
-        None,
-        None,
-    ],
-    "moon_next_rising": [
-        "Moon Next Rising",
-        None,
-        "mdi:arrow-up-circle-outline",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "moon_next_setting": [
-        "Moon Next Setting",
-        None,
-        "mdi:arrow-down-circle-outline",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "moon_phase": [
-        "Moon Phase",
-        PERCENTAGE,
-        "mdi:moon-waning-gibbous",
-        None,
-        None,
-    ],
-    "moon_next_new_moon": [
-        "Moon Next New Moon",
-        None,
-        "mdi:moon-new",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "moon_next_full_moon": [
-        "Moon Next Full Moon",
-        None,
-        "mdi:moon-full",
-        SensorDeviceClass.TIMESTAMP,
-        None,
-    ],
-    "moon_altitude": [
-        "Moon Altitude",
-        DEGREE,
-        "mdi:moon-new",
-        None,
-        None,
-    ],
-    "moon_azimuth": [
-        "Moon Azimuth",
-        DEGREE,
-        "mdi:moon-new",
-        None,
-        None,
-    ],
-    "moon_distance_km": [
-        "Moon Distance",
-        UnitOfLength.KILOMETERS,
-        "mdi:moon-full",
-        SensorDeviceClass.DISTANCE,
-        STATE_CLASS_MEASUREMENT,
-    ],
-    "moon_relative_distance": [
-        "Moon Relative Distance",
-        PERCENTAGE,
-        "mdi:moon-full",
-        None,
-        None,
-    ],
-    "moon_angular_size": [
-        "Moon Angular Size",
-        DEGREE,
-        "mdi:moon-full",
-        None,
-        None,
-    ],
-    "moon_relative_size": [
-        "Moon Relative Size",
-        PERCENTAGE,
-        "mdi:moon-full",
-        None,
-        None,
-    ],
-    "moon_constellation": [
-        "Moon Constellation",
-        None,
-        "mdi:moon-full",
-        None,
-        None,
-    ],
-    "night_duration_astronomical": [
-        "Astronomical Night Duration",
-        UnitOfTime.SECONDS,
-        "mdi:timer-play-outline",
-        SensorDeviceClass.DURATION,
-        None,
-    ],
-    "deep_sky_darkness": [
-        "Deep Sky Darkness",
-        UnitOfTime.SECONDS,
-        "mdi:timer-play",
-        SensorDeviceClass.DURATION,
-        None,
-    ],
-    "deepsky_forecast_today": [
-        "Deepsky Forecast Today",
-        PERCENTAGE,
-        "mdi:calendar-star",
-        None,
-        None,
-    ],
-    "deepsky_forecast_today_plain": [
-        "Deepsky Forecast Today Plain",
-        None,
-        "mdi:calendar-star",
-        None,
-        None,
-    ],
-    "deepsky_forecast_today_desc": [
-        "Deepsky Forecast Today Description",
-        None,
-        "mdi:calendar-star",
-        None,
-        None,
-    ],
-    "deepsky_forecast_tomorrow": [
-        "Deepsky Forecast Tomorrow",
-        PERCENTAGE,
-        "mdi:calendar-star",
-        None,
-        None,
-    ],
-    "deepsky_forecast_tomorrow_plain": [
-        "Deepsky Forecast Tomorrow Plain",
-        None,
-        "mdi:calendar-star",
-        None,
-        None,
-    ],
-    "deepsky_forecast_tomorrow_desc": [
-        "Deepsky Forecast Tomorrow Description",
-        None,
-        "mdi:calendar-star",
-        None,
-        None,
+    "maxWindGustAt2m": [
+        "Max Wind Gust",
+        UnitOfSpeed.KILOMETERS_PER_HOUR,
+        "mdi:weather-windy-variant",
+        SensorDeviceClass.WIND_SPEED,
+        SensorStateClass.MEASUREMENT,
     ],
 }
+
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
@@ -458,28 +135,68 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
         return False
 
     sensors = []
-    for sensor in SENSOR_TYPES:
-        sensors.append(PleinchampSensor(coordinator, entry.data, sensor, forecast_coordinator, entry))
+
+    # Capteur unique pour la longueur de la prévision (forecast_length)
+    if "forecast_length" in SENSOR_TYPES:
+        sensors.append(
+            PleinchampSensor(
+                coordinator,
+                entry.data,
+                "forecast_length",
+                forecast_coordinator,
+                entry
+            )
+        )
+
+    # Capteurs par jour indexé (1 = aujourd'hui, 2 = demain, etc.)
+    # forecast_coordinator.data doit être un dict avec les jours indexés comme clés ou list indexée
+    forecast_data = forecast_coordinator.data
+
+    # Supposons forecast_data est un dict { "1": {...}, "2": {...}, ... }
+    # Sinon adapte selon ta structure
+    for day_index_str, day_data in sorted(forecast_data.items(), key=lambda x: int(x[0])):
+        day_index = int(day_index_str)
+
+        for sensor_key in SENSOR_TYPES:
+            if sensor_key == "forecast_length":
+                # déjà ajouté plus haut
+                continue
+
+            # Vérifier que la donnée existe pour ce jour et ce capteur
+            if sensor_key in day_data:
+                sensors.append(
+                    PleinchampSensor(
+                        coordinator,
+                        entry.data,
+                        sensor_key,
+                        forecast_coordinator,
+                        entry,
+                        day_index
+                    )
+                )
 
     async_add_entities(sensors, True)
-
     return True
 
 
 class PleinchampSensor(PleinchampEntity, SensorEntity):
     """Implementation of a Pleinchamp Weatherflow Sensor."""
 
-    def __init__(self, coordinator, entries, sensor, forecast_coordinator, entry):
+    def __init__(self, coordinator, entries, sensor, forecast_coordinator, entry, day_index=None):
         """Initialize the sensor."""
         super().__init__(coordinator, entries, sensor, forecast_coordinator, entry.entry_id)
         self._sensor = sensor
+        self._day_index = day_index
         self._device_class = SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS]
         self._state_class = SENSOR_TYPES[self._sensor][SENSOR_STATE_CLASS]
         self._icon = SENSOR_TYPES[self._sensor][SENSOR_ICON]
         self._state = None
 
         self._location_name = entries.get(CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME)
-        self._sensor_name = SENSOR_TYPES[self._sensor][SENSOR_NAME]
+        if self._day_index:
+            self._sensor_name = f"{SENSOR_TYPES[self._sensor][SENSOR_NAME]} Jour {self._day_index}"
+        else:
+            self._sensor_name = SENSOR_TYPES[self._sensor][SENSOR_NAME]
         self._attr_unique_id = f"{entry.entry_id}_{DOMAIN.lower()}_{self._sensor_name.lower().replace(' ', '_')}"
         self._name = f"{DOMAIN.capitalize()} {self._location_name} {self._sensor_name}"
 
@@ -493,9 +210,19 @@ class PleinchampSensor(PleinchampEntity, SensorEntity):
     def native_value(self):
         """Return the state of the sensor."""
 
+        if self._sensor == "forecast_length":
+            # Calcule le nombre de jours présents dans les données forecast
+            return len(self.forecast_coordinator.data)
+
+        if self._day_index:
+            value = self.forecast_coordinator.data.get(self._day_index, {}).get(self._sensor)
+        else:
+            value = self.coordinator.data.get(self._sensor)
+
         if SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS] == SensorDeviceClass.TIMESTAMP:
-            return dt_util.parse_datetime(str(getattr(self.coordinator.data[SENSOR_NAME], self._sensor, None)))
-        return getattr(self.coordinator.data[SENSOR_NAME], self._sensor, None)
+            return dt_util.parse_datetime(str(value))
+
+        return value
 
     @property
     def native_unit_of_measurement(self):
