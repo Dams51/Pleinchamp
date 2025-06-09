@@ -1,9 +1,11 @@
 """Support for the Pleinchamp sensors."""
 
 import logging
-from datetime import date
-
-from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorStateClass,
+    SensorEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     DEGREE,
@@ -19,15 +21,14 @@ from homeassistant.util import dt as dt_util
 from .const import CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME, DOMAIN
 from .entity import PleinchampEntity
 
+_LOGGER = logging.getLogger(__name__)
+
 SENSOR_NAME = 0
 SENSOR_UNIT = 1
 SENSOR_ICON = 2
 SENSOR_DEVICE_CLASS = 3
 SENSOR_STATE_CLASS = 4
 
-_LOGGER = logging.getLogger(__name__)
-
-# Sensor types are defined like: Name, Unit Type, icon, device class
 SENSOR_TYPES = {
     "forecast_length": [
         "Forecast Length",
@@ -116,7 +117,6 @@ SENSOR_TYPES = {
 }
 
 
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities) -> None:
     """Set up the Pleinchamp sensor platform."""
 
@@ -136,33 +136,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     sensors = []
 
-    # Capteur unique pour la longueur de la prévision (forecast_length)
-    if "forecast_length" in SENSOR_TYPES:
-        sensors.append(
-            PleinchampSensor(
-                coordinator,
-                entry.data,
-                "forecast_length",
-                forecast_coordinator,
-                entry
-            )
-        )
-
-    # Capteurs par jour indexé (1 = aujourd'hui, 2 = demain, etc.)
-    # forecast_coordinator.data doit être un dict avec les jours indexés comme clés ou list indexée
     forecast_data = forecast_coordinator.data
 
-    # Supposons forecast_data est un dict { "1": {...}, "2": {...}, ... }
-    # Sinon adapte selon ta structure
+    # Capteur global : forecast_length
+    sensors.append(
+        PleinchampSensor(
+            coordinator,
+            entry.data,
+            "forecast_length",
+            forecast_coordinator,
+            entry
+        )
+    )
+
+    # Capteurs par jour indexé
     for day_index_str, day_data in sorted(forecast_data.items(), key=lambda x: int(x[0])):
         day_index = int(day_index_str)
 
         for sensor_key in SENSOR_TYPES:
             if sensor_key == "forecast_length":
-                # déjà ajouté plus haut
                 continue
-
-            # Vérifier que la donnée existe pour ce jour et ce capteur
             if sensor_key in day_data:
                 sensors.append(
                     PleinchampSensor(
@@ -180,79 +173,77 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 
 class PleinchampSensor(PleinchampEntity, SensorEntity):
-    """Implementation of a Pleinchamp Weatherflow Sensor."""
+    """Representation of a Pleinchamp sensor."""
 
     def __init__(self, coordinator, entries, sensor, forecast_coordinator, entry, day_index=None):
         """Initialize the sensor."""
         super().__init__(coordinator, entries, sensor, forecast_coordinator, entry.entry_id)
+
         self._sensor = sensor
         self._day_index = day_index
-        self._device_class = SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS]
-        self._state_class = SENSOR_TYPES[self._sensor][SENSOR_STATE_CLASS]
-        self._icon = SENSOR_TYPES[self._sensor][SENSOR_ICON]
-        self._state = None
+        self._device_class = SENSOR_TYPES[sensor][SENSOR_DEVICE_CLASS]
+        self._state_class = SENSOR_TYPES[sensor][SENSOR_STATE_CLASS]
+        self._icon = SENSOR_TYPES[sensor][SENSOR_ICON]
+        self._unit = SENSOR_TYPES[sensor][SENSOR_UNIT]
 
         self._location_name = entries.get(CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME)
+
         if self._day_index:
-            self._sensor_name = f"{SENSOR_TYPES[self._sensor][SENSOR_NAME]} Jour {self._day_index}"
+            self._sensor_name = f"{SENSOR_TYPES[sensor][SENSOR_NAME]} Jour {self._day_index}"
         else:
-            self._sensor_name = SENSOR_TYPES[self._sensor][SENSOR_NAME]
-        self._attr_unique_id = f"{entry.entry_id}_{DOMAIN.lower()}_{self._sensor_name.lower().replace(' ', '_')}"
-        self._name = f"{DOMAIN.capitalize()} {self._location_name} {self._sensor_name}"
+            self._sensor_name = SENSOR_TYPES[sensor][SENSOR_NAME]
 
-    @property
-    def name(self):
-        """Return the name of the sensor."""
+        uid_base = self._sensor_name.lower().replace(" ", "_")
+        self._attr_unique_id = f"{entry.entry_id}_{DOMAIN}_{uid_base}"
 
-        return self._name
+        self._attr_name = f"{DOMAIN.capitalize()} {self._location_name} {self._sensor_name}"
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
-
         if self._sensor == "forecast_length":
-            # Calcule le nombre de jours présents dans les données forecast
             return len(self.forecast_coordinator.data)
 
-        if self._day_index:
-            value = self.forecast_coordinator.data.get(self._day_index, {}).get(self._sensor)
-        else:
-            value = self.coordinator.data.get(self._sensor)
+        value = (
+            self.forecast_coordinator.data.get(self._day_index, {}).get(self._sensor)
+            if self._day_index else
+            self.coordinator.data.get(self._sensor)
+        )
 
-        if SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS] == SensorDeviceClass.TIMESTAMP:
+        if self._sensor == "windDirection" and isinstance(value, dict):
+            # On retourne uniquement le degré
+            return value.get("degree")
+
+        device_class = SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS]
+
+        if device_class == SensorDeviceClass.TIMESTAMP:
             return dt_util.parse_datetime(str(value))
+        elif device_class == SensorDeviceClass.DATE:
+            dt = dt_util.parse_datetime(str(value))
+            if dt:
+                return dt.date()
+            return None
 
         return value
 
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
-
-        if SENSOR_TYPES[self._sensor][SENSOR_DEVICE_CLASS] == SensorDeviceClass.TIMESTAMP:
+        if self._device_class == SensorDeviceClass.TIMESTAMP:
             return None
-        else:
-            return SENSOR_TYPES[self._sensor][SENSOR_UNIT]
+        return self._unit
 
     @property
     def icon(self):
-        """Icon to use in the frontend."""
-
+        """Return the icon to use in the frontend."""
         return self._icon
 
     @property
     def device_class(self):
-        """Return the device class of the sensor."""
-
+        """Return the device class."""
         return self._device_class
 
     @property
-    def state_class(self) -> str:
-        """State class of sensor."""
-
+    def state_class(self):
+        """Return the state class."""
         return self._state_class
-
-    @property
-    def extra_state_attributes(self) -> {}:
-        """Extra state attributes."""
-
-        return None
