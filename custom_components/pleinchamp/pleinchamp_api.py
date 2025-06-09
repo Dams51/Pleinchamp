@@ -80,7 +80,7 @@ class Pleinchamp:
                 index_jour = (date_courte - today).days + 1
 
                 if index_jour > 0:
-                    result[index_jour]["date"] = date_str  # on peut garder la date ISO complète ici ou date_courte.isoformat()
+                    result[index_jour]["date"] = date_courte.isoformat()
                     result[index_jour][metric] = value
 
         return dict(result)
