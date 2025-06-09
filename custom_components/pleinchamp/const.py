@@ -8,7 +8,6 @@ from homeassistant.const import Platform
 DOMAIN = "pleinchamp"
 
 PLEINCHAMP_PLATFORMS = (
-    Platform.BINARY_SENSOR,
     Platform.SENSOR,
     Platform.WEATHER,
 )

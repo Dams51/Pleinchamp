@@ -4,9 +4,6 @@ import logging
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Dict, List, TypedDict
 
-from aiohttp import ClientSession, ClientTimeout
-from aiohttp.client_exceptions import ClientError
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -15,7 +12,6 @@ from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
-    BASE_URL_PLEINCHAMP,
     CONF_CONDITION_CALM_WEIGHT,
     CONF_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
     CONF_CONDITION_CLOUDCOVER_LOW_WEAKENING,
@@ -27,11 +23,8 @@ from .const import (
     CONF_EXPERIMENTAL_FEATURES,
     CONF_FORECAST_INTERVAL,
     CONF_FORECAST_TYPE,
-    CONF_LATITUDE,
     CONF_LOCATION_NAME,
-    CONF_LONGITUDE,
     CONF_TIMEZONE_INFO,
-    DEFAULT_CACHE_TIMEOUT,
     DEFAULT_CONDITION_CALM_WEIGHT,
     DEFAULT_CONDITION_CLOUDCOVER_HIGH_WEAKENING,
     DEFAULT_CONDITION_CLOUDCOVER_LOW_WEAKENING,
@@ -44,7 +37,6 @@ from .const import (
     DEFAULT_FORECAST_INTERVAL,
     DEFAULT_FORECAST_TYPE,
     DEFAULT_LOCATION_NAME,
-    DEFAULT_TIMEOUT,
     DEFAULT_TIMEZONE_INFO,
     DOMAIN,
     PLEINCHAMP_PLATFORMS,
@@ -62,8 +54,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if not entry.options:
         options = entry.data.copy()
-        if options.get(CONF_LONGITUDE) == 0:
-            options[CONF_LONGITUDE] = 0.000001
         for conf_key, default in [
             (CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL),
             (CONF_FORECAST_TYPE, DEFAULT_FORECAST_TYPE),
