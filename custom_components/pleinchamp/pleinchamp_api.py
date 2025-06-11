@@ -57,7 +57,7 @@ class Pleinchamp:
     def _build_url(self) -> str:
         lat = self._options.get("latitude")
         lon = self._options.get("longitude")
-        return f"{BASE_URL_PLEINCHAMP}forecasts-15d?latitude={lat:.2f}&longitude={lon:.2f}"
+        return f"{BASE_URL_PLEINCHAMP}forecasts-15d?latitude={lat:.6f}&longitude={lon:.6f}"
 
     def reorganiser_par_date(self, data):
         result = defaultdict(dict)
