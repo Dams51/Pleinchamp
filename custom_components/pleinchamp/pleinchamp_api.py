@@ -54,6 +54,11 @@ class Pleinchamp:
         data = await self.get_location_data()
         return data
 
+    async def get_today_forecast_data(self) -> list[dict]:
+        """Extract forecast entries from API."""
+        data = await self.get_location_data()
+        return data.get(1, {})
+
     def _build_url(self) -> str:
         lat = self._options.get("latitude")
         lon = self._options.get("longitude")

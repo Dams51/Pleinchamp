@@ -193,7 +193,7 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
         self._attr_name  = f"{DOMAIN.capitalize()} {self._location_name}"
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         return self._current.get("maxAirTemperature")
 
     @property
@@ -201,8 +201,12 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
         return self._current.get("relativeHumidity")
 
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         return self._current.get("windSpeedAt2m")
+
+    @property
+    def native_wind_gust_speed(self):
+        return self._current.get("maxWindGustAt2m")
 
     @property
     def wind_bearing(self):
@@ -221,14 +225,18 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
         """Return the forecast data."""
         forecasts = []
 
+        # TODO : Il en manque (https://api.prod.pleinchamp.com/forecasts-15d?latitude=47.53&longitude=1.41)
+
         # forecast_coordinator.data doit être un dict comme {"1": {...}, "2": {...}}
         for day_str, day_data in sorted(self.forecast_coordinator.data.items(), key=lambda x: int(x[0])):
             forecast = {
                 "datetime": dt_util.parse_datetime(day_data["date"]),
                 "condition": CONDITION_MAP.get(day_data.get("weatherCode"), None),
+                "humidity": day_data.get("relativeHumidity"),
                 "temperature": day_data.get("maxAirTemperature"),
                 "templow": day_data.get("minAirTemperature"),
                 "precipitation": day_data.get("precipitationAmount"),
+                "precipitation_probability": day_data.get("precipitationProbability"),
                 "wind_speed": day_data.get("windSpeedAt2m"),
                 "wind_bearing": day_data.get("windDirection", {}).get("degree") if isinstance(day_data.get("windDirection"), dict) else None,
             }
