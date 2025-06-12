@@ -25,108 +25,53 @@ from .entity import PleinchampEntity
 _LOGGER = logging.getLogger(__name__)
 
 CONDITION_MAP = {
-    -9999: "partlycloudy",
-    -8: "partlycloudy",
-    -7: "snowy",
-    -6: "pouring",
-    -5: "snowy-rainy",
-    -4: "fog",
-    -3: "snowy",
-    -2: "rainy",
-    -1: "rainy",
-    0: "sunny",
-    1: "sunny",
-    2: "partlycloudy",
-    3: "partlycloudy",
-    4: "partlycloudy",
-    5: "cloudy",
-    6: "cloudy",
-    7: "cloudy",
-    8: "cloudy",
-    9: "cloudy",
-    10: "fog",
-    11: "fog",
-    12: "fog",
-    13: "lightning",
-    14: "rainy",
-    15: "rainy",
-    16: "rainy",
-    17: "lightning",
-    18: "windy",
-    20: "rainy",
-    21: "rainy",
-    22: "snowy",
-    23: "snowy-rainy",
-    24: "snowy-rainy",
-    25: "rainy",
-    26: "snowy",
-    27: "snowy-rainy",
-    29: "lightning-rainy",
-    31: "windy",
-    36: "snowy",
-    37: "snowy",
-    38: "snowy",
-    39: "snowy",
-    40: "fog",
-    41: "fog",
-    42: "fog",
-    43: "fog",
-    44: "fog",
-    45: "fog",
-    46: "fog",
-    47: "fog",
-    48: "fog",
-    49: "fog",
-    50: "rainy",
-    51: "rainy",
-    52: "rainy",
-    53: "rainy",
-    54: "rainy",
-    55: "rainy",
-    56: "snowy-rainy",
-    57: "snowy-rainy",
-    58: "rainy",
-    59: "rainy",
-    60: "rainy",
-    61: "rainy",
-    62: "rainy",
-    63: "rainy",
-    64: "rainy",
-    65: "rainy",
-    66: "snowy-rainy",
-    67: "snowy-rainy",
-    68: "snowy-rainy",
-    69: "snowy-rainy",
-    70: "snowy",
-    71: "snowy",
-    72: "snowy",
-    73: "snowy",
-    74: "snowy",
-    75: "snowy",
-    76: "snowy",
-    77: "snowy",
-    78: "snowy",
-    79: "snowy",
-    80: "rainy",
-    81: "rainy",
-    82: "rainy",
-    83: "snowy-rainy",
-    84: "snowy-rainy",
-    85: "snowy",
-    86: "snowy",
-    87: "hail",
-    88: "hail",
-    89: "hail",
-    90: "hail",
-    91: "lightning",
-    92: "lightning",
-    93: "lightning-rainy",
-    94: "lightning-rainy",
-    95: "lightning-rainy",
-    96: "exceptional",
-    97: "lightning-rainy",
-    98: "lightning-rainy",
-    99: "exceptional",
+    1: "sunny",                  # ClearSkies (jour)
+    101: "clear-night",          # ClearSkies (nuit)
+
+    2: "partlycloudy",           # PartlyCloudy (jour)
+    102: "partlycloudy",         # PartlyCloudy (nuit)
+
+    3: "partlycloudy",           # MainlyCloudy (jour)
+    103: "partlycloudy",         # MainlyCloudy (nuit)
+
+    4: "cloudy",                 # Overcast (jour)
+    104: "cloudy",               # Overcast (nuit)
+
+    5: "rainy",                  # Rain (jour)
+    105: "rainy",                # Rain (nuit)
+
+    6: "snowy-rainy",            # RainAndSnow (jour)
+    106: "snowy-rainy",          # RainAndSnow (nuit)
+
+    7: "snowy",                  # Snow (jour)
+    107: "snowy",                # Snow (nuit)
+
+    8: "rainy",                  # RainShower (jour)
+    108: "rainy",                # RainShower (nuit)
+
+    9: "snowy",                  # SnowShower (jour)
+    109: "snowy",                # SnowShower (nuit)
+
+    10: "snowy-rainy",           # RainAndSnowShower (jour)
+    110: "snowy-rainy",          # RainAndSnowShower (nuit)
+
+    11: "fog",                   # Mist (jour)
+    111: "fog",                  # Mist (nuit)
+
+    12: "fog",                   # Mist (jour)
+    112: "fog",                  # Mist (nuit)
+
+    13: "rainy",                 # FreezingRain (jour)
+    113: "rainy",                # FreezingRain (nuit)
+
+    14: "lightning",             # Thunderstorms (jour)
+    114: "lightning",            # Thunderstorms (nuit)
+
+    15: "rainy",                 # LightDrizzle (jour)
+    115: "rainy",                # LightDrizzle (nuit)
+
+    16: "exceptional",           # Sandstorm (jour)
+    116: "exceptional",          # Sandstorm (nuit)
 }
 
 
