@@ -55,7 +55,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         _LOGGER,
         name=f"{DOMAIN}_data",
-        update_method=pleinchamp.get_today_forecast_data,
+        update_method=pleinchamp.get_current_forecast_data,
         update_interval=timedelta(minutes=entry.options.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)),
     )
     await coordinator.async_config_entry_first_refresh()
@@ -66,7 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         _LOGGER,
         name=f"{DOMAIN}_forecast",
-        update_method=pleinchamp.get_forecast_data,
+        update_method=pleinchamp.get_daily_forecast_datas,
         update_interval=timedelta(minutes=entry.options.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)),
     )
     await forecast_coordinator.async_config_entry_first_refresh()

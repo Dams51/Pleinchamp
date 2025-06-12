@@ -194,7 +194,7 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
 
     @property
     def native_temperature(self):
-        return self._current.get("maxAirTemperature")
+        return self._current.get("airTemperature")
 
     @property
     def humidity(self):
@@ -203,10 +203,6 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
     @property
     def native_wind_speed(self):
         return self._current.get("windSpeedAt2m")
-
-    @property
-    def native_wind_gust_speed(self):
-        return self._current.get("maxWindGustAt2m")
 
     @property
     def wind_bearing(self):
@@ -218,7 +214,7 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
     @property
     def condition(self):
         code = self._current.get("weatherCode")
-        return CONDITION_MAP.get(code, None)
+        return CONDITION_MAP.get(code, code)
 
     @property
     def forecast(self):
@@ -226,6 +222,7 @@ class PleinchampWeather(PleinchampEntity, WeatherEntity):
         forecasts = []
 
         # TODO : Il en manque (https://api.prod.pleinchamp.com/forecasts-15d?latitude=47.53&longitude=1.41)
+        #  ex : maxWindGustAt2m
 
         # forecast_coordinator.data doit être un dict comme {"1": {...}, "2": {...}}
         for day_str, day_data in sorted(self.forecast_coordinator.data.items(), key=lambda x: int(x[0])):

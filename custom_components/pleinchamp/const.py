@@ -37,6 +37,9 @@ DEFAULT_FORECAST_TYPE = "daily"
 DEFAULT_CACHE_TIMEOUT = 1770
 DEFAULT_TIMEOUT = 10
 BASE_URL_PLEINCHAMP = "https://api.prod.pleinchamp.com/"
+ENDPOINT_URL_PLEINCHAMP_CURRENT = "forecasts-summary"
+ENDPOINT_URL_PLEINCHAMP_DAILY = "forecasts-15d"
+# ENDPOINT_URL_PLEINCHAMP_HOURLY = "forecasts-hourly" # Need &date=2025-06-12
 
 # #####################################################
 # Lists
