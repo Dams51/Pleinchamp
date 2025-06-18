@@ -30,12 +30,12 @@ class PleinchampEntity(Entity):
         return self.coordinator.data
 
     @property
-    def _forecast(self):
+    def _forecast(self, mode: str):
         """Return forecast data dict (jours indexés)."""
         if self.forecast_coordinator is None or self.forecast_coordinator.data is None:
             return {}
         # On suppose que forecast_coordinator.data est un dict indexé par jour ("1", "2", ...)
-        return self.forecast_coordinator.data
+        return self.forecast_coordinator.data.get(mode, {})
 
     @property
     def available(self):

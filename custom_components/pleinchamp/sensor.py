@@ -136,7 +136,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
     sensors = []
 
-    forecast_data = forecast_coordinator.data
+    forecast_data = forecast_coordinator.data.get("daily", {})
 
     # Capteur global : forecast_length
     sensors.append(
@@ -201,11 +201,12 @@ class PleinchampSensor(PleinchampEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
+        daily_data = self.forecast_coordinator.data.get("daily", {})
         if self._sensor == "forecast_length":
-            return len(self.forecast_coordinator.data)
+            return len(daily_data)
 
         value = (
-            self.forecast_coordinator.data.get(self._day_index, {}).get(self._sensor)
+            daily_data.get(self._day_index, {}).get(self._sensor)
             if self._day_index else
             self.coordinator.data.get(self._sensor)
         )

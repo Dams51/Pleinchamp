@@ -16,7 +16,6 @@ DEVICE_TYPE_WEATHER = "weather"
 # #####################################################
 # Configuration settings
 # #####################################################
-CONF_FORECAST_TYPE = "forecast_type"
 CONF_FORECAST_INTERVAL = "forecast_interval"
 CONF_LOCATION_NAME = "location_name"
 CONF_LATITUDE = "latitude"
@@ -32,14 +31,13 @@ FORECAST_INTERVAL_MIN = 1
 FORECAST_INTERVAL_MAX = 240
 DEFAULT_LOCATION_NAME = "Backyard"
 DEFAULT_TIMEZONE_INFO = "Etc/UTC"
-DEFAULT_FORECAST_TYPE = "daily"
 
 DEFAULT_CACHE_TIMEOUT = 1770
 DEFAULT_TIMEOUT = 10
 BASE_URL_PLEINCHAMP = "https://api.prod.pleinchamp.com/"
 ENDPOINT_URL_PLEINCHAMP_CURRENT = "forecasts-summary"
 ENDPOINT_URL_PLEINCHAMP_DAILY = "forecasts-15d"
-# ENDPOINT_URL_PLEINCHAMP_HOURLY = "forecasts-hourly" # Need &date=2025-06-12
+ENDPOINT_URL_PLEINCHAMP_HOURLY = "forecasts-hourly" # Need &date=2025-06-12
 
 # #####################################################
 # Lists

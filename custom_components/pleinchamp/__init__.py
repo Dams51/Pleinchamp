@@ -13,11 +13,9 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     CONF_FORECAST_INTERVAL,
-    CONF_FORECAST_TYPE,
     CONF_LOCATION_NAME,
     CONF_TIMEZONE_INFO,
     DEFAULT_FORECAST_INTERVAL,
-    DEFAULT_FORECAST_TYPE,
     DEFAULT_LOCATION_NAME,
     DEFAULT_TIMEZONE_INFO,
     DOMAIN,
@@ -38,7 +36,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         options = entry.data.copy()
         for conf_key, default in [
             (CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL),
-            (CONF_FORECAST_TYPE, DEFAULT_FORECAST_TYPE),
             (CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME),
             (CONF_TIMEZONE_INFO, DEFAULT_TIMEZONE_INFO),
         ]:
@@ -66,20 +63,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass,
         _LOGGER,
         name=f"{DOMAIN}_forecast",
-        update_method=pleinchamp.get_daily_forecast_datas,
+        update_method=pleinchamp.get_all_forecasts_datas,
         update_interval=timedelta(minutes=entry.options.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)),
     )
     await forecast_coordinator.async_config_entry_first_refresh()
     if not forecast_coordinator.last_update_success:
         raise ConfigEntryNotReady
-
-    forecast_type = entry.options.get(CONF_FORECAST_TYPE, DEFAULT_FORECAST_TYPE)
     
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = {
         "coordinator": coordinator,
         "forecast": forecast_coordinator,
         "client": pleinchamp,
-        "forecast_type": forecast_type,
     }
 
     await hass.config_entries.async_forward_entry_setups(entry, PLEINCHAMP_PLATFORMS)
