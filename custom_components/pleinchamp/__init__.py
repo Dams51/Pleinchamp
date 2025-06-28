@@ -1,8 +1,6 @@
 import asyncio
-import json
 import logging
-from datetime import UTC, datetime, timedelta, timezone
-from typing import Dict, List, TypedDict
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -14,10 +12,8 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from .const import (
     CONF_FORECAST_INTERVAL,
     CONF_LOCATION_NAME,
-    CONF_TIMEZONE_INFO,
     DEFAULT_FORECAST_INTERVAL,
     DEFAULT_LOCATION_NAME,
-    DEFAULT_TIMEZONE_INFO,
     DOMAIN,
     PLEINCHAMP_PLATFORMS,
 )
@@ -37,7 +33,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         for conf_key, default in [
             (CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL),
             (CONF_LOCATION_NAME, DEFAULT_LOCATION_NAME),
-            (CONF_TIMEZONE_INFO, DEFAULT_TIMEZONE_INFO),
         ]:
             options.setdefault(conf_key, default)
         hass.config_entries.async_update_entry(entry, options=options)

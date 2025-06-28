@@ -18,8 +18,6 @@ from .const import (
     DEFAULT_FORECAST_INTERVAL,
     FORECAST_INTERVAL_MAX,
     FORECAST_INTERVAL_MIN,
-    CONF_TIMEZONE_INFO,
-    TIMEZONES,
     DOMAIN,
 )
 
@@ -37,8 +35,6 @@ def _get_current_values(hass: HomeAssistant, data: ConfigType):
         data[CONF_LONGITUDE] = hass.config.longitude
     if CONF_ELEVATION not in data:
         data[CONF_ELEVATION] = hass.config.elevation
-    if CONF_TIMEZONE_INFO not in data:
-        data[CONF_TIMEZONE_INFO] = hass.config.time_zone
     if CONF_FORECAST_INTERVAL not in data:
         data[CONF_FORECAST_INTERVAL] = DEFAULT_FORECAST_INTERVAL
 
@@ -66,10 +62,6 @@ def _get_config_data(hass: HomeAssistant, data: ConfigType, user_input: ConfigTy
             CONF_ELEVATION,
             data[CONF_ELEVATION],
         ),
-        CONF_TIMEZONE_INFO: user_input.get(
-            CONF_TIMEZONE_INFO,
-            data[CONF_TIMEZONE_INFO],
-        ),
         CONF_FORECAST_INTERVAL: data.get(
             CONF_FORECAST_INTERVAL, 
             data[CONF_FORECAST_INTERVAL]
@@ -91,9 +83,6 @@ def get_location_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
             ),
             vol.Required(CONF_ELEVATION, default=hass.config.elevation): vol.All(
                 vol.Coerce(int), vol.Range(min=0, max=4000)
-            ),
-            vol.Required(CONF_TIMEZONE_INFO, default=hass.config.time_zone): vol.All(
-                vol.Coerce(str), vol.In(TIMEZONES)
             ),
         }
     )
@@ -121,7 +110,6 @@ def _update_location_input(hass: HomeAssistant, data: ConfigType, location_input
         data[CONF_LATITUDE] = location_input.get(CONF_LATITUDE, hass.config.latitude)
         data[CONF_LONGITUDE] = location_input.get(CONF_LONGITUDE,hass.config.longitude)
         data[CONF_ELEVATION] = location_input.get(CONF_ELEVATION, hass.config.elevation)
-        data[CONF_TIMEZONE_INFO] = location_input.get(CONF_TIMEZONE_INFO, hass.config.time_zone)
 
 
 def _update_calculation_input(data: ConfigType, calculation_input: ConfigType) -> None:
