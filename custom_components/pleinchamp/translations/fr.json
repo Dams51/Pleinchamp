@@ -1,0 +1,30 @@
+{
+  "config": {
+    "step": {
+      "location": {
+        "description": "Configuration du lieu et de l'intervalle de mise à jour.",
+        "data": {
+          "location_name": "Nom pour le lieu",
+          "latitude": "Latitude (-89° to 89°)",
+          "longitude": "Longitude (-180° to 180°)",
+          "elevation": "Altitude (0m to 4000m)",
+          "forecast_interval": "Intervalle de mise à jour des prévisions (min)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "location": {
+        "description": "Configuration du lieu et de l'intervalle de mise à jour.",
+        "data": {
+          "location_name": "Nom pour le lieu",
+          "latitude": "Latitude (-89° to 89°)",
+          "longitude": "Longitude (-180° to 180°)",
+          "elevation": "Altitude (0m to 4000m)",
+          "forecast_interval": "Intervalle de mise à jour des prévisions (min)"
+        }
+      }
+    }
+  }
+}
