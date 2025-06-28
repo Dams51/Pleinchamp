@@ -2,12 +2,13 @@
   "config": {
     "step": {
       "location": {
-        "description": "Configuration of the geographic location.",
+        "description": "Configuration of the geographic location and update interval.",
         "data": {
           "location_name": "Name for the location",
           "latitude": "Latitude (-89° to 89°)",
           "longitude": "Longitude (-180° to 180°)",
-          "elevation": "Elevation (0m to 4000m)"
+          "elevation": "Elevation (0m to 4000m)",
+          "forecast_interval": "Interval between forecast updates (min)"
         }
       }
     }
@@ -15,12 +16,13 @@
   "options": {
     "step": {
       "location": {
-        "description": "Configuration of the geographic location.",
+        "description": "Configuration of the geographic location and update interval.",
         "data": {
           "location_name": "Name for the location",
           "latitude": "Latitude (-89° to 89°)",
           "longitude": "Longitude (-180° to 180°)",
           "elevation": "Elevation (0m to 4000m)",
+          "forecast_interval": "Interval between forecast updates (min)"
         }
       }
     }

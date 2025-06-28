@@ -84,17 +84,7 @@ def get_location_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
             vol.Required(CONF_ELEVATION, default=hass.config.elevation): vol.All(
                 vol.Coerce(int), vol.Range(min=0, max=4000)
             ),
-        }
-    )
-
-
-def get_calculation_schema(hass: HomeAssistant, data: ConfigType) -> Schema:
-    """Return the calculation schema."""
-
-    data = _get_current_values(hass, data)
-    return vol.Schema(
-        {
-            vol.Required(CONF_FORECAST_INTERVAL, default=data[CONF_FORECAST_INTERVAL]): vol.All(
+            vol.Required(CONF_FORECAST_INTERVAL, default=DEFAULT_FORECAST_INTERVAL): vol.All(
                 vol.Coerce(int),
                 vol.Range(min=FORECAST_INTERVAL_MIN, max=FORECAST_INTERVAL_MAX),
             ),
@@ -110,13 +100,7 @@ def _update_location_input(hass: HomeAssistant, data: ConfigType, location_input
         data[CONF_LATITUDE] = location_input.get(CONF_LATITUDE, hass.config.latitude)
         data[CONF_LONGITUDE] = location_input.get(CONF_LONGITUDE,hass.config.longitude)
         data[CONF_ELEVATION] = location_input.get(CONF_ELEVATION, hass.config.elevation)
-
-
-def _update_calculation_input(data: ConfigType, calculation_input: ConfigType) -> None:
-    """Update calculation data."""
-
-    if calculation_input is not None:
-        data[CONF_FORECAST_INTERVAL] = calculation_input.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)
+        data[CONF_FORECAST_INTERVAL] = location_input.get(CONF_FORECAST_INTERVAL, DEFAULT_FORECAST_INTERVAL)
 
 
 class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -141,7 +125,16 @@ class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             self.data = _get_config_data(self.hass, self.data, user_input=user_input)
-            return await self.async_step_calculation()
+            try:
+                unique_id = f"{self.data[CONF_LOCATION_NAME]!s}"
+                await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_configured()
+            except AbortFlow as af:
+                _LOGGER.error("Exception: %s", str(af))
+                msg = f"Location {self.data[CONF_LOCATION_NAME]!s} is {af.reason.replace('_', ' ')}"
+                return self.async_abort(reason=msg)
+            else:
+                return self.async_create_entry(title=self.data[CONF_LOCATION_NAME], data=self.data)
 
         _update_location_input(self.hass, data=self.data, location_input=user_input)
 
@@ -149,29 +142,6 @@ class PleinchampConfigFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="location",
             data_schema=get_location_schema(hass=self.hass, data=self.data),
         )
-
-    async def async_step_calculation(self, calculation_input: ConfigType | None = None) -> ConfigFlowResult:
-        """Handle a flow initiated by the user."""
-
-
-        if calculation_input is None:
-            return self.async_show_form(
-                step_id="calculation",
-                data_schema=get_calculation_schema(self.hass, data=self.data),
-            )
-
-        _update_calculation_input(data=self.data, calculation_input=calculation_input)
-
-        try:
-            unique_id = f"{self.data[CONF_LOCATION_NAME]!s}"
-            await self.async_set_unique_id(unique_id)
-            self._abort_if_unique_id_configured()
-        except AbortFlow as af:
-            _LOGGER.error("Exception: %s", str(af))
-            msg = f"Location {self.data[CONF_LOCATION_NAME]!s} is {af.reason.replace('_', ' ')}"
-            return self.async_abort(reason=msg)
-        else:
-            return self.async_create_entry(title=self.data[CONF_LOCATION_NAME], data=self.data)
 
     @staticmethod
     @callback
@@ -201,7 +171,14 @@ class PleinchampOptionsFlowHandler(OptionsFlow):
 
         if user_input is not None:
             self.data = _get_config_data(self.hass, self.data, user_input=user_input)
-            return await self.async_step_calculation()
+
+            self.hass.config_entries.async_update_entry(
+                entry=self.entry,
+                unique_id=f"{self.data[CONF_LOCATION_NAME]!s}",
+                data=self.data,
+            )
+
+            return self.async_create_entry(title="", data={})
 
         # test
         _update_location_input(self.hass, data=self.data, location_input=user_input)
@@ -210,23 +187,4 @@ class PleinchampOptionsFlowHandler(OptionsFlow):
             step_id="location",
             data_schema=get_location_schema(hass=self.hass, data=self.data),
         )
-
-    async def async_step_calculation(self, calculation_input: ConfigType | None = None) -> ConfigFlowResult:
-        """Handle a flow initiated by the user."""
-
-        if calculation_input is None:
-            return self.async_show_form(
-                step_id="calculation",
-                data_schema=get_calculation_schema(self.hass, data=self.data),
-            )
-
-        _update_calculation_input(data=self.data, calculation_input=calculation_input)
-
-        self.hass.config_entries.async_update_entry(
-            entry=self.entry,
-            unique_id=f"{self.data[CONF_LOCATION_NAME]!s}",
-            data=self.data,
-        )
-
-        return self.async_create_entry(title="", data={})
     
